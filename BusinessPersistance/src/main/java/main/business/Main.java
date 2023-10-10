@@ -1,5 +1,6 @@
-package main;
+package main.business;
 
+import main.persistance.DbClient;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -17,11 +18,12 @@ import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
+//TODO: remove references to DbClient
+//TODO: Add sockets
 public class Main {
 
-    private static DbClient dbClient;
 
+    private static DbClient dbClient;
     @Command(name = "event", mixinStandardHelpOptions = true)
     private static class EventCommand implements Callable<Integer> {
 

@@ -3,6 +3,6 @@ target/
 test.db
 
 ### IntelliJ ###
-.idea/
+../.idea/
 *.iml
 node_modules
