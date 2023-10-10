@@ -4,25 +4,21 @@ import main.Event;
 import main.Participant;
 import main.persistance.DbClient;
 
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.io.Reader;
 import java.net.InetSocketAddress;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
-import java.util.concurrent.Callable;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 //TODO: add json.simple to POM
 
@@ -33,7 +29,12 @@ public class Main {
     private static JSONObject readJSONRequest(HttpExchange exchange) {
         InputStreamReader r = new InputStreamReader(exchange.getRequestBody());
         JSONParser parser = new JSONParser();
-        JSONObject eventJson = (JSONObject) parser.parse(r);
+        try {
+            return (JSONObject) parser.parse(r);
+        } catch (IOException | ParseException e) {
+            // TODO: handle
+            return null;
+        }
     }
 
     private static void sendJSONResponse(HttpExchange exchange, JSONObject response) {
@@ -135,7 +136,7 @@ public class Main {
     private static class ListParticipantsRequest implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) {
-            JSONObject json = readJsonRequest(exchange);
+            JSONObject json = readJSONRequest(exchange);
 
             String eventID = (String) json.get("eventID");
 
