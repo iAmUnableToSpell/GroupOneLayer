@@ -1,14 +1,18 @@
 package main.business;
 
+import main.Event;
+import main.Participant;
 import main.persistance.DbClient;
-import picocli.CommandLine;
-import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
-import picocli.CommandLine.Parameters;
+
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
+import com.sun.net.httpserver.HttpServer;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.InetSocketAddress;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -21,66 +25,42 @@ import java.util.regex.Pattern;
 //TODO: remove references to DbClient
 //TODO: Add sockets
 public class Main {
-
-
+    private static HttpServer server;
     private static DbClient dbClient;
-    @Command(name = "event", mixinStandardHelpOptions = true)
-    private static class EventCommand implements Callable<Integer> {
 
-        @Parameters(index = "0")
-        String date;
-
-        @Parameters(index = "1")
-        String time;
-
-        @Parameters(index = "2")
-        String ampm;
-
-        @Parameters(index = "3")
-        String title;
-
-        @Parameters(index = "4")
-        String description;
-
-        @Parameters(index = "5")
-        String hostEmail;
-
-        @Option(names = {"-ei", "--event-id"})
-        String eventID;
-
+    private static class EventRequest implements HttpHandler {
         @Override
-        public Integer call() throws SQLException {
+        public void handle(HttpExchange exchange) {
+            //TODO: get JSON out of exchange and parse
+            String date;
+            String time;
+            String ampm;
+            String title;
+            String description;
+            String hostEmail;
+            String eventID;
+            
             try {
-
-                if(Objects.nonNull(eventID)) {
+                if (Objects.nonNull(eventID)) {
                     dbClient.addEvent(Event.create(eventID, date, "%s %s".formatted(time, ampm), title, description, hostEmail));
                 } else {
                     dbClient.addEvent(Event.create(date, "%s %s".formatted(time, ampm), title, description, hostEmail));
                 }
-            } catch(Event.HandledIllegalValueException e){
+            } catch (Event.HandledIllegalValueException | SQLException e) {
                 System.out.println("Failed to create event: " + e.getMessage());
             }
-            return 0;
         }
     }
 
-    @Command(name = "participant", mixinStandardHelpOptions = true, version="1.0")
-    private static class ParticipantCommand implements Callable<Integer> {
-
-        @Parameters(index = "0")
-        String eventID;
-
-        @Parameters(index = "1")
-        String name;
-
-        @Parameters(index = "2")
-        String email;
-
-        @Option(names = {"-pi", "--participant-id"})
-        String participantID;
-
+    private static class ParticipantRequest implements HttpHandler {
         @Override
-        public Integer call() throws SQLException {
+        public void handle(HttpExchange exchange) {
+            //TODO: parse json
+            String eventID;
+            String name;
+            String email;
+            String participantID;
+
             try {
                 if (participantID != null) {
                     dbClient.addParticipant(
@@ -91,20 +71,23 @@ public class Main {
                             Participant.create(eventID, name, email)
                     );
                 }
-            } catch (Event.HandledIllegalValueException e){
+            } catch (Event.HandledIllegalValueException | SQLException e) {
                 System.out.println("Failed to create participant: " + e.getMessage());
             }
-            return 0;
         }
-
     }
 
-    @Command(name = "list-events", mixinStandardHelpOptions = true, version="1.0")
-    private static class ListEventsCommand implements Callable<Integer> {
-
+    private static class ListEventsRequest implements HttpHandler {
         @Override
-        public Integer call() throws SQLException {
-            List<Event> events = dbClient.getEvents();
+        public void handle(HttpExchange exchange) {
+            List<Event> events;
+            try {
+                events = dbClient.getEvents();
+            } catch (SQLException e) {
+                System.out.println("Failed to retrieve events: " + e.getMessage());
+                return;
+            }
+
             StringBuilder sb = new StringBuilder();
 
             for(Event event : events){
@@ -125,20 +108,23 @@ public class Main {
             }
 
             System.out.println(sb);
-            return 0;
         }
-
     }
 
-    @Command(name = "list-participants", mixinStandardHelpOptions = true, version="1.0")
-    private static class ListParticipantsCommand implements Callable<Integer> {
-
-        @Parameters(index = "0")
-        String eventID;
-
+    private static class ListParticipantsRequest implements HttpHandler {
         @Override
-        public Integer call() throws SQLException{
-            List<Participant> participants = dbClient.getParticipants(eventID);
+        public void handle(HttpExchange exchange) {
+            //TODO: parse json
+            String eventID;
+
+            List<Participant> participants;
+            try {
+                participants = dbClient.getParticipants(eventID);
+            } catch (SQLException e) {
+                System.out.println("Failed to retrieve participants: " + e.getMessage());
+                return;
+            }
+            
             StringBuilder sb = new StringBuilder();
 
             for(Participant participant : participants){
@@ -149,32 +135,41 @@ public class Main {
             }
 
             System.out.println(sb);
-            return 0;
         }
+    }
 
+    private static class TestRequest implements HttpHandler {
+        @Override
+        public void handle(HttpExchange exchange) {
+            try {
+                exchange.sendResponseHeaders(200, 0);
+                var output = exchange.getResponseBody();
+                output.write("test".getBytes());
+            } catch (IOException e) {
+                // handle
+            }
+            exchange.close();
+        }
     }
 
     public static void main(String[] args) throws IOException, SQLException {
-        dbClient = new DbClient();
+        //dbClient = new DbClient();
 
-        BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
-        String line;
-
-        System.out.print("$> ");
-        while((line = input.readLine()) != null){
-            String[] words = line.split("\\s");
-            String[] commandArgs = new String[words.length - 1];
-            System.arraycopy(words, 1, commandArgs, 0, commandArgs.length);
-
-            switch(words[0]){
-                case "event" -> new CommandLine(new EventCommand()).execute(commandArgs);
-                case "participant" -> new CommandLine(new ParticipantCommand()).execute(commandArgs);
-                case "list-events" -> new CommandLine(new ListEventsCommand()).execute(commandArgs);
-                case "list-participants" -> new CommandLine(new ListParticipantsCommand()).execute(commandArgs);
-                default -> System.out.println("Error: unknown command");
-            }
-            System.out.print("$> ");
+        try {
+            String hostname = "localhost";
+            int port = 6969;
+            server = HttpServer.create(new InetSocketAddress(hostname, port), 0);
+        } catch (IOException e) {
+            System.out.println("Failed to start server: " + e.getMessage());
+            return;
         }
-    }
+        
+        server.createContext("/api/test",               new TestRequest());
+        server.createContext("/api/list-events",        new ListEventsRequest());
+        server.createContext("/api/list-participants",  new ListParticipantsRequest());
+        server.createContext("/api/event",              new EventRequest());
+        server.createContext("/api/participant",        new ParticipantRequest());
 
+        server.start();
+    }
 }
