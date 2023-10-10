@@ -47,7 +47,7 @@
 }
 
 .nav-container:hover {
-    width: 12em;
+    width: 16em;
 }
 
 .nav-container > * {
@@ -62,8 +62,8 @@
 
 .nav-icon {
     max-height: 2.5em;
-    padding-left: 0.5em;
-    padding-right: 0.5em;
+    padding-left: 0.75em;
+    padding-right: 0.75em;
 }
 
 .icon {

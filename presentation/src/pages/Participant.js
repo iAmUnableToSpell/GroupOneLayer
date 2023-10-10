@@ -1,5 +1,6 @@
 import "../styles/Page.css"
 import { useState } from "react"
+import axios from 'axios'
 
 function Participant() {
 
@@ -9,13 +10,22 @@ function Participant() {
   const [uuid, setUUID] = useState("")
   
 
-  const onSubmit = (event) => {
-    console.log(event)
+  const onSubmit = async (event) => {
+    event.preventDefault();
+    const jsonObject = {
+      "name" : name,
+      "e_uuid": eventID,
+      "email": email,
+      "uuid": uuid == "" ? null : uuid
+    }
+    axios.post("localhost:5000/participant", jsonObject).then((response) => {
+      console.log(response)
+      //TODO handle error codes
+    })
   }
-
     return (
         <div className="wrapper">
-        <h1 className="title">Participant</h1>
+        <h1 className="title">New Participant</h1>
         <div className="input-bar">
           <form onSubmit={onSubmit} className="form">
             <label>
@@ -34,7 +44,7 @@ function Participant() {
               UUID (optional)
               <input type="text" value={uuid} onChange={(e) => setUUID(e.target.value)} />
             </label>
-            <input type="submit" value={"Create\n Event"} />
+            <input type="submit" value={"Create"} />
           </form>
         </div>
       </div>

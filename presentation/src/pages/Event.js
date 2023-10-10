@@ -1,24 +1,36 @@
 import "../styles/Page.css"
 import { useState } from "react";
+import axios from 'axios'
 
 function Event() {
 
-  const [title, setTitle] = useState("")
-  const [desc, setDesc] = useState("")
-  const [email, setEmail] = useState("")
-  const [date, setDate] = useState(Date.now())
-  const [time, setTime] = useState(Date.now())
-  const [uuid, setUUID] = useState("")
+  const [title, setTitle] = useState(null)
+  const [desc, setDesc] = useState(null)
+  const [email, setEmail] = useState(null)
+  const [date, setDate] = useState(null)
+  const [time, setTime] = useState(null)
+  const [uuid, setUUID] = useState(null)
   
 
-  const onSubmit = (event) => {
+  const onSubmit = async (event) => {
     event.preventDefault();
-    console.log(event)
+    const jsonObject = {
+      "date": date,
+      "time": time,
+      "email": email,
+      "title": title,
+      "desc": desc,
+      "uuid": uuid == "" ? null : uuid
+    }
+    axios.post("localhost:5000/event", jsonObject).then((response) => {
+      console.log(response)
+      //TODO handle error codes
+    })
   }
 
   return (
     <div className="wrapper">
-        <h1 className="title">Event</h1>
+        <h1 className="title">New Event</h1>
         <div className="input-bar">
           <form onSubmit={onSubmit} className="form">
             <label>
@@ -45,7 +57,7 @@ function Event() {
               UUID (optional)
               <input type="text" value={uuid} onChange={(e) => setUUID(e.target.value)} />
             </label>
-            <input type="submit" value={"Create\n Event"} />
+            <input type="submit" value={"Create"} />
           </form>
         </div>
       </div>
