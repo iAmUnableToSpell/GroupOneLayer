@@ -1,11 +1,13 @@
-package main;
+package main.persistance;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import main.Event;
 import main.Event.HandledIllegalValueException;
+import main.Participant;
 
 public class DbClient {
     private static final String DB_URL = "jdbc:sqlite:test.db";

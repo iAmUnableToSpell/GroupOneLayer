@@ -3,5 +3,5 @@ target/
 test.db
 
 ### IntelliJ ###
-.idea/
+../.idea/
 *.iml
