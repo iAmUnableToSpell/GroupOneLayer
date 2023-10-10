@@ -12,6 +12,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.io.Reader;
 import java.net.InetSocketAddress;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
@@ -22,23 +23,42 @@ import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-//TODO: remove references to DbClient
-//TODO: Add sockets
+
+//TODO: add json.simple to POM
+
 public class Main {
     private static HttpServer server;
     private static DbClient dbClient;
 
+    private static JSONObject readJSONRequest(HttpExchange exchange) {
+        InputStreamReader r = new InputStreamReader(exchange.getRequestBody());
+        JSONParser parser = new JSONParser();
+        JSONObject eventJson = (JSONObject) parser.parse(r);
+    }
+
+    private static void sendJSONResponse(HttpExchange exchange, JSONObject response) {
+        try {
+            exchange.sendResponseHeaders(200, 0);
+            var output = exchange.getResponseBody();
+            output.write(response.toJSONString().getBytes());
+        } catch (IOException e) {
+            // TODO: handle
+        }
+        exchange.close();
+    }
+
     private static class EventRequest implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) {
-            //TODO: get JSON out of exchange and parse
-            String date;
-            String time;
-            String ampm;
-            String title;
-            String description;
-            String hostEmail;
-            String eventID;
+            JSONObject json = readJSONRequest(exchange);
+
+            String date         = (String) json.get("date");
+            String time         = (String) json.get("time");
+            String ampm         = (String) json.get("ampm");
+            String title        = (String) json.get("title");
+            String description  = (String) json.get("description");
+            String hostEmail    = (String) json.get("hostEmail");
+            String eventID      = (String) json.get("eventID");
             
             try {
                 if (Objects.nonNull(eventID)) {
@@ -55,11 +75,12 @@ public class Main {
     private static class ParticipantRequest implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) {
-            //TODO: parse json
-            String eventID;
-            String name;
-            String email;
-            String participantID;
+            JSONObject json = readJSONRequest(exchange);
+
+            String eventID       = (String) json.get("eventID");
+            String name          = (String) json.get("name");
+            String email         = (String) json.get("email");
+            String participantID = (String) json.get("participantID");
 
             try {
                 if (participantID != null) {
@@ -114,8 +135,9 @@ public class Main {
     private static class ListParticipantsRequest implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) {
-            //TODO: parse json
-            String eventID;
+            JSONObject json = readJsonRequest(exchange);
+
+            String eventID = (String) json.get("eventID");
 
             List<Participant> participants;
             try {
