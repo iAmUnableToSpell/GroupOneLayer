@@ -176,9 +176,9 @@ def listParticipants():
     return getParticipants(eventId)
 
 def pushEvent(event):
-    pass
+    return rq.post(f'{PERSISTENCE_HOST}:{PERSISTENCE_PORT}/add-event', json = json.dump(event)).status_code
 def pushParticipant(participant):
-    pass
+    return rq.post(f'{PERSISTENCE_HOST}:{PERSISTENCE_PORT}/add-participant', json = json.dump(participant)).status_code
 def getParticipants(eventId):
     return rq.get(f'{PERSISTENCE_HOST}:{PERSISTENCE_PORT}/get-participants?eventUUID={eventId}').content
 def getEvents():
@@ -187,4 +187,4 @@ def getEvents():
 HOST = "localhost"
 PORT = 5000  
 if __name__ == "__main__":
-    app.run(debug=True, host=HOST, port=PORT)
+    app.run(debug=False, host=HOST, port=PORT)
