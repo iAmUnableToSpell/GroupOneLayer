@@ -1,32 +1,59 @@
 package main.persistence;
+import java.io.*;
+import java.nio.file.*;
 import java.sql.*;
+import java.sql.Date;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import main.Event;
 import main.Event.HandledIllegalValueException;
 import main.Participant;
 
 public class DbClient {
-    private static final String DB_URL = "jdbc:sqlite:test.db";
+
     private Connection conn;
     
     public DbClient() throws SQLException {
-        conn = DriverManager.getConnection(DB_URL);
+        final String DB_URL = "swa-database.cxvwky2cwxfy.us-east-1.rds.amazonaws.com";
+        final int DB_PORT =3306;
+        final String DATABASE = "EventScheduler";
+        final String DB_USER = "admin";
+        final String DB_PASS;
+        Path path = Paths.get(System.getProperty("user.dir"), "passfile.txt");
+        try(InputStream is = Files.newInputStream(path, StandardOpenOption.READ)) {
+            Scanner scanner = new Scanner(is);
+            DB_PASS = scanner.next();
+        } catch(IOException e){
+            System.err.println(e.getMessage());
+            return;
+        } catch(NoSuchElementException e){
+            System.err.println("Please fill in " + path.toAbsolutePath() + "with the DB password(Contact Ben if you don't know what it is)");
+            System.exit(-1);
+            return;
+        }
+        String CONNECTION_STRING = "jdbc:mysql://%s:%d/%s?user=%s&password=%s".formatted(
+                //DB_USER
+                //, DB_PASS
+                DB_URL
+                , DB_PORT
+                , DATABASE
+                , DB_USER
+                , DB_PASS
+        );
+        conn = DriverManager.getConnection(CONNECTION_STRING);
         this.createDatabase();
+
     }
 
     public void close() throws SQLException {
-        if (conn != null)
-            conn.close();
+        if (conn != null) conn.close();
     }
 
     public void createDatabase() throws SQLException {
         conn.createStatement().execute(
             "CREATE TABLE IF NOT EXISTS events (\n"
-            + "  id text PRIMARY KEY,\n"
+            + "  id VARCHAR(255) PRIMARY KEY,\n"
             + "  date date,\n"
             + "  time time,\n"
             + "  title varchar(255),\n"
@@ -36,13 +63,14 @@ public class DbClient {
         );
         conn.createStatement().execute(
             "CREATE TABLE IF NOT EXISTS participants (\n"
-            + "  id text PRIMARY KEY,\n"
-            + "  event_id text,\n"
+            + "  id VARCHAR(255) PRIMARY KEY,\n"
+            + "  event_id VARCHAR(255) , \n"
             + "  name varchar(600),\n"
             + "  email text,\n"
             + "  FOREIGN KEY (event_id) REFERENCES events(id)\n"
             + ");"
         );
+        System.out.println("Database created");
     }
 
     public List<Event> getEvents() throws SQLException {
@@ -101,7 +129,7 @@ public class DbClient {
         pstmt.setString(4, e.title());
         pstmt.setString(5, e.description());
         pstmt.setString(6, e.hEmail());
-
+        System.out.println(pstmt.toString());
         pstmt.executeUpdate();
     }
 

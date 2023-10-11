@@ -17,22 +17,23 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 public class Main {
     private static HttpServer server;
     private static DbClient dbClient;
 
-    private static JSONObject readJSONRequest(HttpExchange exchange) {
+    private final static String HOSTNAME = "localhost";
+    private final static int PORT = 6969;
+
+    private static Optional<JSONObject> readJSONRequest(HttpExchange exchange) {
         InputStreamReader r = new InputStreamReader(exchange.getRequestBody());
         JSONParser parser = new JSONParser();
         try {
-            return (JSONObject) parser.parse(r);
+            return Optional.of((JSONObject) parser.parse(r));
         } catch (IOException | ParseException e) {
             // TODO: handle
-            return null;
+            return Optional.empty();
         }
     }
 
@@ -51,26 +52,45 @@ public class Main {
         sendJSONResponse(exchange, new JSONObject());
     }
 
+    private static void fail(HttpExchange exchange, int statusCode, String message){
+        System.err.println(message);
+        try {
+            Map<String, String> responseMap = new HashMap<>();
+            responseMap.put("error", message);
+            JSONObject response = new JSONObject(responseMap);
+            exchange.sendResponseHeaders(statusCode, 0);
+            var output = exchange.getResponseBody();
+            output.write(response.toJSONString().getBytes());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        exchange.close();
+    }
+
     private static class EventRequest implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) {
-            JSONObject json = readJSONRequest(exchange);
-
-            String date         = (String) json.get("date");
-            String time         = (String) json.get("time");
-            String title        = (String) json.get("title");
-            String description  = (String) json.get("desc");
-            String hostEmail    = (String) json.get("email");
-            String eventID      = (String) json.get("uuid");
-            
             try {
-                if (Objects.nonNull(eventID)) {
-                    dbClient.addEvent(Event.create(eventID, date, time, title, description, hostEmail));
-                } else {
-                    dbClient.addEvent(Event.create(date, time, title, description, hostEmail));
-                }
+                JSONObject json = readJSONRequest(exchange).orElseThrow();
+
+                String date         = (String) json.get("date");
+                String time         = (String) json.get("time");
+                String title        = (String) json.get("title");
+                String description  = (String) json.get("desc");
+                String hostEmail    = (String) json.get("email");
+                String eventID      = (String) json.get("uuid");
+
+                Event event = Event.create(eventID, date, time, title, description, hostEmail);
+                System.out.println(event);
+                dbClient.addEvent(event);
+
+                System.out.println("Event created: " + event);
+            } catch(NoSuchElementException e){
+                fail(exchange, 400, "Must provide json in request body");
+                return;
             } catch (Event.HandledIllegalValueException | SQLException e) {
-                System.out.println("Failed to create event: " + e.getMessage());
+                fail(exchange, 400, "Failed to create event: " + e.getMessage());
+                return;
             }
             sendResponse(exchange);
         }
@@ -79,27 +99,25 @@ public class Main {
     private static class ParticipantRequest implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) {
-            JSONObject json = readJSONRequest(exchange);
-
-            String eventID       = (String) json.get("eventID");
-            String name          = (String) json.get("name");
-            String email         = (String) json.get("email");
-            String participantID = (String) json.get("participantID");
-
             try {
-                if (participantID != null) {
-                    dbClient.addParticipant(
-                            Participant.create(participantID, eventID, name, email)
-                    );
-                } else {
-                    dbClient.addParticipant(
-                            Participant.create(eventID, name, email)
-                    );
-                }
+                JSONObject json = readJSONRequest(exchange).orElseThrow();
+
+                String eventID = (String) json.get("eventID");
+                String name = (String) json.get("name");
+                String email = (String) json.get("email");
+                String participantID = (String) json.get("participantID");
+
+                Participant participant = Participant.create(participantID, eventID, name, email);
+                dbClient.addParticipant(participant);
+
+                System.out.println("Participant created: " + participant);
+
+                sendResponse(exchange);
+            } catch(NoSuchElementException e){
+                fail(exchange, 400, "Must provide json in request body");
             } catch (Event.HandledIllegalValueException | SQLException e) {
-                System.out.println("Failed to create participant: " + e.getMessage());
+                fail(exchange, 400, "Failed to create participant: " + e.getMessage());
             }
-            sendResponse(exchange);
         }
     }
 
@@ -110,25 +128,24 @@ public class Main {
             try {
                 events = dbClient.getEvents();
             } catch (SQLException e) {
-                System.out.println("Failed to retrieve events: " + e.getMessage());
+                fail(exchange, 500, "Failed to retrieve events: " + e.getMessage());
                 return;
             }
 
             JSONArray eventList = new JSONArray();
-            JSONObject json;
-
-            for (Event event : events) {
-                json = new JSONObject(Map.of(
-                    "date", event.eventDateTime().toLocalDate(),
-                    "time", event.eventDateTime().toLocalTime(),
-                    "title", event.title(),
-                    "desc", event.description(),
-                    "email", event.hEmail(),
-                    "uuid", event.uuid()
-                ));
-                eventList.add(json);
-            }
-
+            events.forEach(
+                    event ->
+                        eventList.add(
+                            new JSONObject(Map.of(
+                                    "date", event.eventDateTime().toLocalDate(),
+                                    "time", event.eventDateTime().toLocalTime(),
+                                    "title", event.title(),
+                                    "desc", event.description(),
+                                    "email", event.hEmail(),
+                                    "uuid", event.uuid()
+                            ))
+                    )
+            );
             sendJSONResponse(exchange, new JSONObject(Map.of("events", eventList)));
         }
     }
@@ -136,30 +153,36 @@ public class Main {
     private static class ListParticipantsRequest implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) {
-            JSONObject json = readJSONRequest(exchange);
+            JSONObject json;
 
-            String eventID = (String) json.get("eventID");
+            String eventID;
 
             List<Participant> participants;
             try {
+                json = readJSONRequest(exchange).orElseThrow();
+                eventID = (String) json.get("eventID");
                 participants = dbClient.getParticipants(eventID);
+            } catch(NoSuchElementException e){
+                fail(exchange, 400, "Must provide json in request body");
+                return;
             } catch (SQLException e) {
-                System.out.println("Failed to retrieve participants: " + e.getMessage());
+                fail(exchange, 400, "Failed to retrieve participants: " + e.getMessage());
                 return;
             }
             
             JSONArray participantList = new JSONArray();
-            JSONObject participantJson;
+            participants.forEach(
+                    participant ->
+                            participantList.add(
+                                    new JSONObject(Map.of(
+                                            "name", participant.name(),
+                                            "email", participant.email(),
+                                            "eventID", participant.eventId(),
+                                            "uuid", participant.uuid()
+                                    ))
+                            )
+            );
 
-            for (Participant participant : participants) {
-                participantJson = new JSONObject(Map.of(
-                    "name", participant.name(),
-                    "email", participant.email(),
-                    "eventID", participant.eventId(),
-                    "uuid", participant.uuid()
-                ));
-                participantList.add(participantJson);
-            }
 
             sendJSONResponse(exchange, new JSONObject(Map.of("participants", participantList)));
         }
@@ -183,11 +206,9 @@ public class Main {
         dbClient = new DbClient();
 
         try {
-            String hostname = "localhost";
-            int port = 6969;
-            server = HttpServer.create(new InetSocketAddress(hostname, port), 0);
+            server = HttpServer.create(new InetSocketAddress(HOSTNAME, PORT), 0);
         } catch (IOException e) {
-            System.out.println("Failed to start server: " + e.getMessage());
+            System.err.println("Failed to start server: " + e.getMessage());
             return;
         }
         
@@ -198,5 +219,6 @@ public class Main {
         server.createContext("/api/participant",        new ParticipantRequest());
 
         server.start();
+        System.out.println("Server started");
     }
 }
