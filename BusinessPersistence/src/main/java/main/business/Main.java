@@ -2,7 +2,7 @@ package main.business;
 
 import main.Event;
 import main.Participant;
-import main.persistance.DbClient;
+import main.persistence.DbClient;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
