@@ -4,6 +4,7 @@ import main.Event;
 import main.Participant;
 import main.persistence.DbClient;
 
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -16,11 +17,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.sql.SQLException;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
-
-//TODO: add json.simple to POM
 
 public class Main {
     private static HttpServer server;
@@ -48,6 +47,10 @@ public class Main {
         exchange.close();
     }
 
+    private static void sendResponse(HttpExchange exchange) {
+        sendJSONResponse(exchange, new JSONObject());
+    }
+
     private static class EventRequest implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) {
@@ -55,21 +58,21 @@ public class Main {
 
             String date         = (String) json.get("date");
             String time         = (String) json.get("time");
-            String ampm         = (String) json.get("ampm");
             String title        = (String) json.get("title");
-            String description  = (String) json.get("description");
-            String hostEmail    = (String) json.get("hostEmail");
-            String eventID      = (String) json.get("eventID");
+            String description  = (String) json.get("desc");
+            String hostEmail    = (String) json.get("email");
+            String eventID      = (String) json.get("uuid");
             
             try {
                 if (Objects.nonNull(eventID)) {
-                    dbClient.addEvent(Event.create(eventID, date, "%s %s".formatted(time, ampm), title, description, hostEmail));
+                    dbClient.addEvent(Event.create(eventID, date, time, title, description, hostEmail));
                 } else {
-                    dbClient.addEvent(Event.create(date, "%s %s".formatted(time, ampm), title, description, hostEmail));
+                    dbClient.addEvent(Event.create(date, time, title, description, hostEmail));
                 }
             } catch (Event.HandledIllegalValueException | SQLException e) {
                 System.out.println("Failed to create event: " + e.getMessage());
             }
+            sendResponse(exchange);
         }
     }
 
@@ -96,6 +99,7 @@ public class Main {
             } catch (Event.HandledIllegalValueException | SQLException e) {
                 System.out.println("Failed to create participant: " + e.getMessage());
             }
+            sendResponse(exchange);
         }
     }
 
@@ -110,26 +114,22 @@ public class Main {
                 return;
             }
 
-            StringBuilder sb = new StringBuilder();
+            JSONArray eventList = new JSONArray();
+            JSONObject json;
 
-            for(Event event : events){
-                sb.append(String.format(
-                        "%s on %s at %s | Host Email: %s | Event ID: %s | '%s' \n\n",
-                        event.title(),
-                        event.eventDateTime().toLocalDate().format(
-                                DateTimeFormatter.ISO_LOCAL_DATE
-                        ),
-                        //event.eventDateTime().getHour(), event.eventDateTime().getMinute(),
-                        event.eventDateTime().toLocalTime().format(
-                                DateTimeFormatter.ofPattern("hh:mm a")
-                        ),
-                        event.hEmail(),
-                        event.uuid(),
-                        event.description()
+            for (Event event : events) {
+                json = new JSONObject(Map.of(
+                    "date", event.eventDateTime().toLocalDate(),
+                    "time", event.eventDateTime().toLocalTime(),
+                    "title", event.title(),
+                    "desc", event.description(),
+                    "email", event.hEmail(),
+                    "uuid", event.uuid()
                 ));
+                eventList.add(json);
             }
 
-            System.out.println(sb);
+            sendJSONResponse(exchange, new JSONObject(Map.of("events", eventList)));
         }
     }
 
@@ -148,16 +148,20 @@ public class Main {
                 return;
             }
             
-            StringBuilder sb = new StringBuilder();
+            JSONArray participantList = new JSONArray();
+            JSONObject participantJson;
 
-            for(Participant participant : participants){
-                sb.append(String.format(
-                        "%s | Email : %s | Participant ID: %s",
-                        participant.name(),participant.email(), participant.uuid()
+            for (Participant participant : participants) {
+                participantJson = new JSONObject(Map.of(
+                    "name", participant.name(),
+                    "email", participant.email(),
+                    "eventID", participant.eventId(),
+                    "uuid", participant.uuid()
                 ));
+                participantList.add(participantJson);
             }
 
-            System.out.println(sb);
+            sendJSONResponse(exchange, new JSONObject(Map.of("participants", participantList)));
         }
     }
 
@@ -169,14 +173,14 @@ public class Main {
                 var output = exchange.getResponseBody();
                 output.write("test".getBytes());
             } catch (IOException e) {
-                // handle
+                //TODO: handle
             }
             exchange.close();
         }
     }
 
     public static void main(String[] args) throws IOException, SQLException {
-        //dbClient = new DbClient();
+        dbClient = new DbClient();
 
         try {
             String hostname = "localhost";
