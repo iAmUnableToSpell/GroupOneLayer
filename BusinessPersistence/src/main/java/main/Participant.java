@@ -12,7 +12,11 @@ public record Participant(UUID uuid, UUID eventId, String name, String email) {
         } catch (IllegalArgumentException e) {
             throw new Event.HandledIllegalValueException("UUID is invalid, please try again");
         }
-        return new Participant(uid, UUID.fromString(eventId), name, Event.validateEmail(email));
+        try{
+            return new Participant(uid, UUID.fromString(eventId), name, Event.validateEmail(email));
+        } catch (IllegalArgumentException e) {
+            throw new Event.HandledIllegalValueException("Event ID parameter is invalid");
+        }
     }
     public static Participant create(String uuid, String eventId, String name, String email) throws Event.HandledIllegalValueException {
             return Participant.create(Optional.ofNullable(uuid), eventId, name, email);
