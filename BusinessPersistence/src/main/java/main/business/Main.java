@@ -32,7 +32,6 @@ public class Main {
         try {
             return Optional.of((JSONObject) parser.parse(r));
         } catch (IOException | ParseException e) {
-            // TODO: handle
             return Optional.empty();
         }
     }
@@ -40,14 +39,14 @@ public class Main {
     private static void sendJSONResponse(HttpExchange exchange, JSONObject response) {
         try {
             var output = exchange.getResponseBody();
-	    exchange.getResponseHeaders().add("Access-Control-Expose-Headers", "*");
-	    exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
-	    exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type");
-	    exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "OPTIONS,POST,GET");  
+            exchange.getResponseHeaders().add("Access-Control-Expose-Headers", "*");
+            exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+            exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type");
+            exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "OPTIONS,POST,GET");  
             exchange.sendResponseHeaders(200, 0);
             output.write(response.toJSONString().getBytes());
         } catch (IOException e) {
-            // TODO: handle
+            assert false;
         }
         exchange.close();
     }
@@ -62,13 +61,12 @@ public class Main {
             Map<String, String> responseMap = new HashMap<>();
             responseMap.put("error", message);
             JSONObject response = new JSONObject(responseMap);
-
-	    exchange.getResponseHeaders().add("Access-Control-Expose-Headers", "*");
-	    exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
-	    exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type");
-	    exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "OPTIONS,POST,GET");  
+            exchange.getResponseHeaders().add("Access-Control-Expose-Headers", "*");
+            exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+            exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type");
+            exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "OPTIONS,POST,GET");  
             exchange.sendResponseHeaders(statusCode, 0);
-	    var output = exchange.getResponseBody();
+	        var output = exchange.getResponseBody();
             output.write(response.toJSONString().getBytes());
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -196,20 +194,6 @@ public class Main {
         }
     }
 
-    private static class TestRequest implements HttpHandler {
-        @Override
-        public void handle(HttpExchange exchange) {
-            try {
-                exchange.sendResponseHeaders(200, 0);
-                var output = exchange.getResponseBody();
-                output.write("test".getBytes());
-            } catch (IOException e) {
-                //TODO: handle
-            }
-            exchange.close();
-        }
-    }
-
     public static void main(String[] args) throws IOException, SQLException {
         dbClient = new DbClient();
 
@@ -220,7 +204,6 @@ public class Main {
             return;
         }
         
-        server.createContext("/api/test",               new TestRequest());
         server.createContext("/api/list-events",        new ListEventsRequest());
         server.createContext("/api/list-participants",  new ListParticipantsRequest());
         server.createContext("/api/event",              new EventRequest());
