@@ -39,11 +39,12 @@ public class Main {
 
     private static void sendJSONResponse(HttpExchange exchange, JSONObject response) {
         try {
-            exchange.sendResponseHeaders(200, 0);
             var output = exchange.getResponseBody();
+	    exchange.getResponseHeaders().add("Access-Control-Expose-Headers", "*");
 	    exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
 	    exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type");
 	    exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "OPTIONS,POST,GET");  
+            exchange.sendResponseHeaders(200, 0);
             output.write(response.toJSONString().getBytes());
         } catch (IOException e) {
             // TODO: handle
@@ -61,10 +62,12 @@ public class Main {
             Map<String, String> responseMap = new HashMap<>();
             responseMap.put("error", message);
             JSONObject response = new JSONObject(responseMap);
-            exchange.sendResponseHeaders(statusCode, 0);
+
+	    exchange.getResponseHeaders().add("Access-Control-Expose-Headers", "*");
 	    exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
 	    exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type");
 	    exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "OPTIONS,POST,GET");  
+            exchange.sendResponseHeaders(statusCode, 0);
 	    var output = exchange.getResponseBody();
             output.write(response.toJSONString().getBytes());
         } catch (IOException e) {
@@ -143,12 +146,12 @@ public class Main {
                     event ->
                         eventList.add(
                             new JSONObject(Map.of(
-                                    "date", event.eventDateTime().toLocalDate(),
-                                    "time", event.eventDateTime().toLocalTime(),
+                                    "date", event.eventDateTime().toLocalDate().toString(),
+                                    "time", event.eventDateTime().toLocalTime().toString(),
                                     "title", event.title(),
                                     "desc", event.description(),
                                     "email", event.hEmail(),
-                                    "uuid", event.uuid()
+                                    "uuid", event.uuid().toString()
                             ))
                     )
             );
@@ -183,13 +186,11 @@ public class Main {
                                     new JSONObject(Map.of(
                                             "name", participant.name(),
                                             "email", participant.email(),
-                                            "eventID", participant.eventId(),
-                                            "uuid", participant.uuid()
+                                            "eventID", participant.eventId().toString(),
+                                            "uuid", participant.uuid().toString()
                                     ))
                             )
             );
-
-
             sendJSONResponse(exchange, new JSONObject(Map.of("participants", participantList)));
         }
     }
