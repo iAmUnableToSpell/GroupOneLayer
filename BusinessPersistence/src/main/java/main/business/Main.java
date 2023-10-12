@@ -41,6 +41,9 @@ public class Main {
         try {
             exchange.sendResponseHeaders(200, 0);
             var output = exchange.getResponseBody();
+	    exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+	    exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type");
+	    exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "OPTIONS,POST,GET");  
             output.write(response.toJSONString().getBytes());
         } catch (IOException e) {
             // TODO: handle
@@ -59,7 +62,10 @@ public class Main {
             responseMap.put("error", message);
             JSONObject response = new JSONObject(responseMap);
             exchange.sendResponseHeaders(statusCode, 0);
-            var output = exchange.getResponseBody();
+	    exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+	    exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type");
+	    exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "OPTIONS,POST,GET");  
+	    var output = exchange.getResponseBody();
             output.write(response.toJSONString().getBytes());
         } catch (IOException e) {
             throw new RuntimeException(e);
