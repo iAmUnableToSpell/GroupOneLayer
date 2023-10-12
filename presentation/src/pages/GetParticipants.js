@@ -19,6 +19,7 @@ function GetParticipants() {
     axios({
       method: 'POST',
       url: 'http://ec2-54-145-190-43.compute-1.amazonaws.com:6969/api/list-participants',
+      timeout: 10000,
       withCredentials : false,
       headers : {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -38,7 +39,6 @@ function GetParticipants() {
       <div className="list-entry">
         <div className="list-data">{participant.name}</div>
         <div className="list-data">{participant.email}</div>
-        <div className="list-data">{participant.e_uuid}</div>
         <div className="list-data">{participant.uuid}</div>
       </div>
     )}))
@@ -50,7 +50,6 @@ function GetParticipants() {
     <div className="legend">
          <div className="list-data">Name</div>
               <div className="list-data">Email</div>
-              <div className="list-data-wide">event UUID</div>
               <div className="list-data-wide">participant UUID</div>
     </div>
     )} else return <p>No Data To Display</p> 
