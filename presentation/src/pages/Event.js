@@ -55,7 +55,7 @@ function Event() {
             </label>
             <label>
               UUID (optional)
-              <input type="text" value={uuid} onChange={(e) => setUUID(e.target.value)} />
+              <input type="text" value={uuid} onChange={(e) => setUUID(e.target.value)} placeholder='00000000-0000-0000-0000-000000000000'/>
             </label>
             <input type="submit" value={"Create"} />
           </form>

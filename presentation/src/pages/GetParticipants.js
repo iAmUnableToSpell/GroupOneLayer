@@ -11,26 +11,15 @@ function GetParticipants() {
   }, [])
 
   const updateParticipants = async () => {
-    // axios.get("localhost:5000/get-participants").then((response) => {
-    //   setParticipants(response)
-    // })
-    // temp dummy participants for testing
-    setParticipants([{
-      name: 'name1',
-      email: 'email',
-      e_uuid: '550e8400-e29b-41d4-a716-446655440001',
-      uuid: '550e8400-e29b-41d4-a716-446655440000'
-    },{
-      name: 'name2',
-      email: 'email',
-      e_uuid: '550e8400-e29b-41d4-a716-446655440002',
-      uuid: '550e8400-e29b-41d4-a716-446655440000'
-    },{
-      name: 'name3',
-      email: 'email',
-      e_uuid: '550e8400-e29b-41d4-a716-446655440003',
-      uuid: '550e8400-e29b-41d4-a716-446655440000'
-    }])
+    try {
+      axios.get("http://ec2-54-158-35-93.compute-1.amazonaws.com/get-participants").then((response) => {
+        console.log('req')
+        console.log(response)
+        setParticipants(response)
+      })
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   const getparticipantsList = () => {

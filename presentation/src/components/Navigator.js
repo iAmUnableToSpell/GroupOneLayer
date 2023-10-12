@@ -20,7 +20,6 @@ function Navigator({setPage}) {
     }
 
     const onGetParticipantsClicked = () => {
-        console.log('test')
         setPage(<GetParticipants/>)
     }
 

@@ -14,17 +14,19 @@ function Participant() {
     event.preventDefault();
     const jsonObject = {
       "name" : name,
-      "e_uuid": eventID,
+      "eventID": eventID,
       "email": email,
       "uuid": uuid == "" ? null : uuid
     }
     axios.post("localhost:5000/participant", jsonObject).then((response) => {
       console.log(response)
-      //TODO handle error codes
+      if (response.status != 200) {
+        console.log(response)
+      }
     })
   }
     return (
-        <div className="wrapper">
+        <div className="wrapper"> 
         <h1 className="title">New Participant</h1>
         <div className="input-bar">
           <form onSubmit={onSubmit} className="form">
@@ -34,7 +36,7 @@ function Participant() {
             </label>
             <label>
               event ID
-              <input type="text" value={eventID} onChange={(e) => setEventID(e.target.value)} />
+              <input type="text" value={eventID} onChange={(e) => setEventID(e.target.value)} placeholder='00000000-0000-0000-0000-000000000000'/>
             </label>
             <label>
               email
@@ -42,7 +44,7 @@ function Participant() {
             </label>
             <label>
               UUID (optional)
-              <input type="text" value={uuid} onChange={(e) => setUUID(e.target.value)} />
+              <input type="text" value={uuid} onChange={(e) => setUUID(e.target.value)} placeholder='00000000-0000-0000-0000-000000000000'/>
             </label>
             <input type="submit" value={"Create"} />
           </form>

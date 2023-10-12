@@ -45,10 +45,6 @@ input[type=submit] {
     font-size: 18px;
 }
 
-input:not[type=submit] {
-
-}
-
 .form {
     width: 100%;
     display: flex;
