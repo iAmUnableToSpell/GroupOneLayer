@@ -13,13 +13,11 @@ function Event() {
   const [timestring, setTimestring] = useState('')
   
   const to24h = (timeIn) => {
-    console.log(timeIn)
     let h = timeIn.substring(0,2)
     const m = timeIn.substring(3,5)
     const suf = h > 11 ? 'PM' : 'AM'
     h = h > 11 ? h - 12 : h;
     const res =  h + ':' + m + " " + suf
-    console.log(res)
     setTimestring(res)
   }
   
@@ -34,7 +32,6 @@ function Event() {
         desc: desc,
         uuid: uuid == "" ? null : uuid
     }
-    console.log(jsonObject)
     axios({
       method: 'POST',
       url: 'http://ec2-54-145-190-43.compute-1.amazonaws.com:6969/api/event',
@@ -49,12 +46,10 @@ function Event() {
     .then((response) => {
       if (response.status != 200) {
         alert("Invalid Event");
-        
       } else {
         alert("Event Created")
       }
     }).catch(error => {
-      console.log(error);
       alert("Error connecting to server: " + error);
     })
   }

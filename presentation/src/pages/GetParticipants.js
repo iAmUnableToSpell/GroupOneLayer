@@ -12,7 +12,6 @@ function GetParticipants() {
   }, [])
 
   const updateParticipants = async () => {
-    console.log(eventID)
     const jsonObject = {
         "eventID" : eventID
     }
@@ -63,7 +62,6 @@ function GetParticipants() {
             <label className='searchbar'>
               Event UUID&nbsp;&nbsp;&nbsp;&nbsp;
               <input type='text' value={eventID}  onChange={(e) => {
-                console.log('test')
                 setEventId(e.target.value)}}></input>
             </label>
             <button onClick={updateParticipants}>Search</button>

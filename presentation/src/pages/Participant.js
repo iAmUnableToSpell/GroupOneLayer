@@ -29,14 +29,12 @@ function Participant() {
     .then((response) => {
       if (response.status != 200) {
         alert("Invalid Participant");
-        event.preventDefault();
       } else {
         alert("Participant Created")
       }
     }).catch(error => {
       console.log(error);
       alert("Error connecting to server: " + error);
-      event.preventDefault();
     })
   }
     return (

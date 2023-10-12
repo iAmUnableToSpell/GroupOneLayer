@@ -21,7 +21,6 @@ function GetEvents() {
       withCredentials : false
     })
     .then((response) => {
-      console.log(response)
       setEvents(response.data.events)
     }).catch(error => {
       console.log(error);
