@@ -23,7 +23,7 @@ public class Main {
     private static HttpServer server;
     private static DbClient dbClient;
 
-    private final static String HOSTNAME = "localhost";
+    private final static String HOSTNAME = "ec2-54-145-190-43.compute-1.amazonaws.com";
     private final static int PORT = 6969;
 
     private static Optional<JSONObject> readJSONRequest(HttpExchange exchange) {
