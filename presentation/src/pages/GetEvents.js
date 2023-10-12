@@ -11,38 +11,26 @@ function GetEvents() {
   }, [])
 
   const updateEvents = async () => {
-    // axios.get("localhost:5000/get-events").then((response) => {
-    //   setEvents(response)
-    // })
-    // temp dummy events for testing
-    setEvents([{
-      date: '21-02-2020',
-      time: '10:32 PM',
-      email: 'email',
-      title: 'title1',
-      desc: 'desc',
-      uuid: '550e8400-e29b-41d4-a716-446655440001'
-    },{
-      date: '21-02-2020',
-      time: '10:32 PM',
-      email: 'email',
-      title: 'title2',
-      desc: 'desc',
-      uuid: '550e8400-e29b-41d4-a716-446655440002'
-    },{
-      date: '21-02-2020',
-      time: '10:32 PM',
-      email: 'email',
-      title: 'title3',
-      desc: 'desc',
-      uuid: '550e8400-e29b-41d4-a716-446655440003'
-    }])
+    axios({
+      method: 'GET',
+      url: 'http://ec2-54-145-190-43.compute-1.amazonaws.com:6969/api/list-events',
+      headers : {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      withCredentials : false
+    })
+    .then((response) => {
+      console.log(response)
+      setEvents(response.data.events)
+    }).catch(error => {
+      console.log(error);
+    })
   }
 
   const getEventsList = () => {
     return(events.map(event => {
     return(
-      <div className="list-entry">
+      <div className="list-entry">  
         <div className="list-data">{event.title}</div>
         <div className="list-data">{event.desc}</div>
         <div className="list-data">{event.date}</div>
@@ -53,19 +41,26 @@ function GetEvents() {
     )}))
   }
 
+  const getLegend = () => {
+    if (events.length > 0) {
+    return (
+    <div className="legend">
+      <div className="list-data">Title</div>
+      <div className="list-data">Description</div>
+      <div className="list-data">Date</div>
+      <div className="list-data">Time</div>
+      <div className="list-data">Email</div>
+      <div className="list-data-wide">UUID</div>
+    </div>
+    )} else return <p>No Data To Display</p> 
+  }
+
   return (
     <div className="wrapper">
         <h1 className="title">List Events</h1>
         <div className="input-bar">
           <div className="list-container">
-            <div className="legend">
-              <div className="list-data">Title</div>
-              <div className="list-data">Description</div>
-              <div className="list-data">Date</div>
-              <div className="list-data">Time</div>
-              <div className="list-data">Email</div>
-              <div className="list-data">UUID</div>
-            </div>
+            {getLegend()}
             {getEventsList()}
           </div>
         </div>
