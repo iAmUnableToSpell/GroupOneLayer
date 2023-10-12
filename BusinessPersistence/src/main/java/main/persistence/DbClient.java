@@ -81,7 +81,7 @@ public class DbClient {
             );
             while (results.next()) {
                 output.add(Event.create(
-                        results.getString("id"),
+                        results.getString("id").toUpperCase(),
                         (new SimpleDateFormat("yyyy-MM-dd")).format(results.getDate("date")),
                         (new SimpleDateFormat("hh:mm a")).format(results.getTime("time")),
                         results.getString("title"),
@@ -101,7 +101,7 @@ public class DbClient {
         try {
             List<Participant> output = new ArrayList<Participant>();
             ResultSet results = conn.createStatement().executeQuery(
-                    "SELECT * FROM participants WHERE event_id=\"" + eventId + "\""
+                    "SELECT * FROM participants WHERE event_id=\"" + eventId.toUpperCase() + "\""
             );
             while (results.next()) {
                 output.add(Participant.create(
@@ -123,7 +123,7 @@ public class DbClient {
         PreparedStatement pstmt = conn.prepareStatement(
             "INSERT INTO events(id, date, time, title, description, host_email) VALUES(?,?,?,?,?,?)"
         );
-        pstmt.setString(1, e.uuid().toString());
+        pstmt.setString(1, e.uuid().toString().toUpperCase());
         pstmt.setDate(2, Date.valueOf(e.eventDateTime().toLocalDate()));
         pstmt.setTime(3, Time.valueOf(e.eventDateTime().toLocalTime()));
         pstmt.setString(4, e.title());
@@ -137,8 +137,8 @@ public class DbClient {
         PreparedStatement pstmt = conn.prepareStatement(
             "INSERT INTO participants(id, event_id, name, email) VALUES(?,?,?,?)"
         );
-        pstmt.setString(1, p.uuid().toString());
-        pstmt.setString(2, p.eventId().toString());
+        pstmt.setString(1, p.uuid().toString().toUpperCase());
+        pstmt.setString(2, p.eventId().toString().toUpperCase());
         pstmt.setString(3, p.name());
         pstmt.setString(4, p.email());
 
