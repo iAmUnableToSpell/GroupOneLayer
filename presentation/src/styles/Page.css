@@ -8,7 +8,12 @@
 }
 
 .title {
-    color: var(--text-color);
+    background: linear-gradient(90deg,
+    rgba(108,108,255,1) 0%,
+    rgba(0,220,80,1) 50%,
+    rgba(108,108,255,1) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
     font-size: 64px;
     letter-spacing: 35px;
 }
@@ -110,3 +115,18 @@ input[type=submit] {
         flex-direction: column !important;
     }
 }
+
+::-webkit-scrollbar {
+    width: 10px;
+  }
+    ::-webkit-scrollbar-track {
+    background: #f1f1f1; 
+  }
+    ::-webkit-scrollbar-thumb {
+    background: rgb(1,1,1,0.8); 
+      border-radius:0px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    
+    background: #121212; 
+  } 
