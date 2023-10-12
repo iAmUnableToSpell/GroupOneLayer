@@ -15,21 +15,15 @@ public record Event(UUID uuid, LocalDateTime eventDateTime, String title, String
         if (!date.matches("\\d{4}-\\d{2}-\\d{2}")){
             throw new HandledIllegalValueException("Date must be formatted YYYY-MM-DD, was " + date);
         }
-        if (!time.matches("\\d{1,2}:\\d{1,2} (?:AM|PM)")){
-            throw new HandledIllegalValueException("Time must be in the format \"HH:mm (AM|PM)\", was " + time);
+        if (!time.matches("\\d{1,2}:\\d{1,2}")){
+            throw new HandledIllegalValueException("Time must be in the format \"HH:mm\", was " + time);
         }
         String[] dateSplit = date.split("-");
         String[] timeSplit = time.split(" |:");
         int hour = Integer.parseInt(timeSplit[0]);
-        if (hour < 1 || hour > 12){
-            throw new HandledIllegalValueException("Hour must be in the range [1,12]");
+        if (hour < 1 || hour > 24){
+            throw new HandledIllegalValueException("Hour must be in the range [1,24]");
         }
-        if (timeSplit[2].equalsIgnoreCase("am") && Integer.parseInt(timeSplit[0]) == 12){
-            hour = 0;
-        } else if (!(Integer.parseInt(timeSplit[0]) == 12)){
-            hour += (timeSplit[2].contains("PM") ? 12 : 0);
-        }
-
         int minute = Integer.parseInt(timeSplit[1]);
         if(minute < 0 || minute > 59){
             throw new HandledIllegalValueException("Minutes must be in the range [0, 59]");
