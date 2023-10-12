@@ -140,8 +140,9 @@ public class Main {
                 fail(exchange, 500, "Failed to retrieve events: " + e.getMessage());
                 return;
             }
-
+		System.out.println(events);
             JSONArray eventList = new JSONArray();
+
             events.forEach(
                     event ->
                         eventList.add(
