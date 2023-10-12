@@ -1,25 +1,35 @@
 import "../styles/Page.css"
 import axios from "axios"
-import { useEffect, useState } from "react";
+import { useEffect, useState } from "react"
 
 function GetParticipants() {
 
   const [participants, setParticipants] = useState([]);
+  const [eventID, setEventId] = useState('')
 
   useEffect(() => {
     updateParticipants();
   }, [])
 
   const updateParticipants = async () => {
-    try {
-      axios.get("http://ec2-54-158-35-93.compute-1.amazonaws.com/get-participants").then((response) => {
-        console.log('req')
-        console.log(response)
-        setParticipants(response)
-      })
-    } catch (e) {
-      console.log(e)
+    console.log(eventID)
+    const jsonObject = {
+        "eventID" : eventID
     }
+    axios({
+      method: 'POST',
+      url: 'http://ec2-54-145-190-43.compute-1.amazonaws.com:6969/api/list-participants',
+      withCredentials : false,
+      headers : {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      data : JSON.stringify(jsonObject)  
+    })
+    .then((response) => {
+      setParticipants(response.data.participants)
+    }).catch(error => {
+      console.log(error);
+    })
   }
 
   const getparticipantsList = () => {
@@ -34,17 +44,31 @@ function GetParticipants() {
     )}))
   }
 
+  const getLegend = () => {
+    if (participants.length > 0) {
+    return (
+    <div className="legend">
+         <div className="list-data">Name</div>
+              <div className="list-data">Email</div>
+              <div className="list-data-wide">event UUID</div>
+              <div className="list-data-wide">participant UUID</div>
+    </div>
+    )} else return <p>No Data To Display</p> 
+  }
+
   return (
     <div className="wrapper">
         <h1 className="title">List Participants</h1>
         <div className="input-bar">
           <div className="list-container">
-            <div className="legend">
-              <div className="list-data">Name</div>
-              <div className="list-data">Email</div>
-              <div className="list-data">event UUID</div>
-              <div className="list-data">participant UUID</div>
-            </div>
+            <label className='searchbar'>
+              Event UUID&nbsp;&nbsp;&nbsp;&nbsp;
+              <input type='text' value={eventID}  onChange={(e) => {
+                console.log('test')
+                setEventId(e.target.value)}}></input>
+            </label>
+            <button onClick={updateParticipants}>Search</button>
+            {getLegend()}
             {getparticipantsList()}
           </div>
         </div>

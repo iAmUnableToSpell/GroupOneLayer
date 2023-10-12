@@ -9,7 +9,6 @@ function Participant() {
   const [email, setEmail] = useState("")
   const [uuid, setUUID] = useState("")
   
-
   const onSubmit = async (event) => {
     event.preventDefault();
     const jsonObject = {
@@ -18,11 +17,26 @@ function Participant() {
       "email": email,
       "uuid": uuid == "" ? null : uuid
     }
-    axios.post("localhost:5000/participant", jsonObject).then((response) => {
-      console.log(response)
+    axios({
+      method: 'POST',
+      url: 'http://ec2-54-145-190-43.compute-1.amazonaws.com:6969/api/participant',
+      withCredentials : false,
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      data: JSON.stringify(jsonObject)
+    })
+    .then((response) => {
       if (response.status != 200) {
-        console.log(response)
+        alert("Invalid Participant");
+        event.preventDefault();
+      } else {
+        alert("Participant Created")
       }
+    }).catch(error => {
+      console.log(error);
+      alert("Error connecting to server: " + error);
+      event.preventDefault();
     })
   }
     return (

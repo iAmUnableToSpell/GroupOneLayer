@@ -8,6 +8,7 @@ function App() {
     const [page, setPage] = useState(<Event/>);
 
     return (
+        
         <div className="App" style={{'margin': '0'}}>
             <Navigator setPage={setPage} / >
             {page}

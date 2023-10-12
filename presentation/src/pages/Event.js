@@ -10,21 +10,52 @@ function Event() {
   const [date, setDate] = useState(null)
   const [time, setTime] = useState(null)
   const [uuid, setUUID] = useState(null)
+  const [timestring, setTimestring] = useState('')
+  
+  const to24h = (timeIn) => {
+    console.log(timeIn)
+    let h = timeIn.substring(0,2)
+    const m = timeIn.substring(3,5)
+    const suf = h > 11 ? 'PM' : 'AM'
+    h = h > 11 ? h - 12 : h;
+    const res =  h + ':' + m + " " + suf
+    console.log(res)
+    setTimestring(res)
+  }
   
 
   const onSubmit = async (event) => {
     event.preventDefault();
     const jsonObject = {
-      "date": date,
-      "time": time,
-      "email": email,
-      "title": title,
-      "desc": desc,
-      "uuid": uuid == "" ? null : uuid
+        date: date,
+        time: timestring,
+        email: email,
+        title: title,
+        desc: desc,
+        uuid: uuid == "" ? null : uuid
     }
-    axios.post("localhost:5000/event", jsonObject).then((response) => {
-      console.log(response)
-      //TODO handle error codes
+    console.log(jsonObject)
+    axios({
+      method: 'POST',
+      url: 'http://ec2-54-145-190-43.compute-1.amazonaws.com:6969/api/event',
+      withCredentials : false,
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      
+      data: JSON.stringify(jsonObject)
+      
+    })
+    .then((response) => {
+      if (response.status != 200) {
+        alert("Invalid Event");
+        
+      } else {
+        alert("Event Created")
+      }
+    }).catch(error => {
+      console.log(error);
+      alert("Error connecting to server: " + error);
     })
   }
 
@@ -39,7 +70,7 @@ function Event() {
             </label>
             <label>
               event time
-              <input type="time" value={time} onChange={(e) => setTime(e.target.value)} />
+              <input type="time" value={time} onChange={(e) => to24h(e.target.value)} />
             </label>
             <label>
               host email
