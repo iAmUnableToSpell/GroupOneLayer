@@ -35,6 +35,8 @@ public class Main {
             exchange.getRequestHeaders().forEach((name, values) -> values.forEach(value -> requestBuilder.header(name, value)));
             requestBuilder.method(exchange.getRequestMethod(), BodyPublishers.ofInputStream(() -> exchange.getRequestBody()));
             requestBuilder.build();
+
+            // TODO: Send to appropriate service and handle response
         }
     }
 
