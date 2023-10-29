@@ -16,6 +16,8 @@ public class Main {
     private final static String HOSTNAME = "";
     private final static int PORT = 3000;
 
+    private static HttpClient client;
+
     private static class RequestHandler implements HttpHandler {
         private URI uri; 
 
@@ -29,11 +31,15 @@ public class Main {
 
         @Override
         public void handle(HttpExchange exchange) {
-            
+            var requestBuilder = HttpRequest.newBuilder(uri);
+            exchange.getRequestHeaders().forEach((name, values) -> values.forEach(value -> requestBuilder.header(name, value)));
+            requestBuilder.method(exchange.getRequestMethod(), BodyPublishers.ofInputStream(() -> exchange.getRequestBody()));
+            requestBuilder.build();
         }
     }
 
     public static void main(String[] args) throws IOException {
+        client = HttpClient.newHttpClient();
 
         try {
             server = HttpServer.create(new InetSocketAddress(HOSTNAME, PORT), 0);
