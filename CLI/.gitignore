@@ -1,0 +1,7 @@
+.vscode/settings.json
+target/
+
+### IntelliJ ###
+../.idea/
+*.iml
+node_modules
