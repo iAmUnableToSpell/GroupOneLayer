@@ -24,12 +24,12 @@ public class Main {
     private static class RequestHandler implements HttpHandler {
         private URI uri; 
 
-        private RequestHandler(String uri) {
-            this.uri = URI.create(uri);
+        private RequestHandler(String uriString) {
+            this.uri = URI.create(uriString);
         }
 
-        public static RequestHandler routeTo(String uri) {
-            return new RequestHandler(uri);
+        public static RequestHandler routeTo(String uriString) {
+            return new RequestHandler(uriString);
         }
 
         @Override
