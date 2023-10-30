@@ -16,10 +16,12 @@ import com.sun.net.httpserver.HttpServer;
 
 public class Main {
     private static HttpServer server;
-    private final static String HOSTNAME = "";
+    private final static String HOSTNAME = "ec2-54-145-190-43.compute-1.amazonaws.com";
     private final static int PORT = 3000;
 
     private static HttpClient client;
+    private final static String EVENT_ADDR       = HOSTNAME + ":3001";
+    private final static String PARTICIPANT_ADDR = HOSTNAME + ":3002";
 
     private static class RequestHandler implements HttpHandler {
         private URI uri; 
@@ -59,7 +61,7 @@ public class Main {
         }
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         client = HttpClient.newHttpClient();
 
         try {
@@ -69,10 +71,10 @@ public class Main {
             return;
         }
         
-        server.createContext("/api/list-events",        RequestHandler.routeTo(/* TODO */));
-        server.createContext("/api/list-participants",  RequestHandler.routeTo(/* TODO */));
-        server.createContext("/api/event",              RequestHandler.routeTo(/* TODO */));
-        server.createContext("/api/participant",        RequestHandler.routeTo(/* TODO */));
+        server.createContext("/api/list-events",        RequestHandler.routeTo(EVENT_ADDR + "/api/list-events"));
+        server.createContext("/api/list-participants",  RequestHandler.routeTo(PARTICIPANT_ADDR + "/api/list-participants"));
+        server.createContext("/api/event",              RequestHandler.routeTo(EVENT_ADDR + "/api/event"));
+        server.createContext("/api/participant",        RequestHandler.routeTo(PARTICIPANT_ADDR + "/api/participant"));
 
         server.start();
         System.out.println("Server started");
