@@ -17,7 +17,7 @@ function GetParticipants() {
     }
     axios({
       method: 'POST',
-      url: 'http://ec2-54-145-190-43.compute-1.amazonaws.com:6969/api/list-participants',
+      url: 'http://ec2-54-145-190-43.compute-1.amazonaws.com:3000/api/list-participants',
       timeout: 10000,
       withCredentials : false,
       headers : {
