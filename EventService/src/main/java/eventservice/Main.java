@@ -54,6 +54,7 @@ public class Main {
             exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type");
             exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "OPTIONS,POST,GET");
             exchange.sendResponseHeaders(200, 0);
+            System.out.println(exchange.getResponseHeaders());
             output.write(response.toJSONString().getBytes());
         } catch (IOException e) {
             // TODO: handle
@@ -75,6 +76,7 @@ public class Main {
             exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type");
             exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "OPTIONS,POST,GET");
             exchange.sendResponseHeaders(statusCode, 0);
+            System.out.println(exchange.getResponseHeaders());
             var output = exchange.getResponseBody();
             output.write(response.toJSONString().getBytes());
         } catch (IOException e) {
