@@ -1,6 +1,7 @@
 import "../styles/Page.css"
 import axios from "axios"
 import { useEffect, useState } from "react";
+import toast from 'react-hot-toast'
 
 function GetEvents() {
 
@@ -23,7 +24,7 @@ function GetEvents() {
     .then((response) => {
       setEvents(response.data.events)
     }).catch(error => {
-      console.log(error);
+      toast.error("Error connecting to server: " + error);
     })
   }
 

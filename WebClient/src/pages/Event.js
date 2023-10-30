@@ -1,6 +1,7 @@
 import "../styles/Page.css"
 import { useState } from "react";
 import axios from 'axios'
+import toast from 'react-hot-toast'
 
 function Event() {
 
@@ -10,23 +11,13 @@ function Event() {
   const [date, setDate] = useState(null)
   const [time, setTime] = useState(null)
   const [uuid, setUUID] = useState(null)
-  const [timestring, setTimestring] = useState('')
-  
-  const to24h = (timeIn) => {
-    let h = timeIn.substring(0,2)
-    const m = timeIn.substring(3,5)
-    const suf = h > 11 ? 'PM' : 'AM'
-    h = h > 11 ? h - 12 : h;
-    const res =  h + ':' + m + " " + suf
-    setTimestring(res)
-  }
-  
 
   const onSubmit = async (event) => {
+
     event.preventDefault();
     const jsonObject = {
         date: date,
-        time: timestring,
+        time: time,
         email: email,
         title: title,
         desc: desc,
@@ -45,12 +36,12 @@ function Event() {
     })
     .then((response) => {
       if (response.status != 200) {
-        alert("Invalid Event");
+        toast.error("Invalid Event");
       } else {
-        alert("Event Created")
+        toast.success("Event Created")
       }
     }).catch(error => {
-      alert("Error connecting to server: " + error);
+      toast.error("Error connecting to server: " + error);
     })
   }
 
@@ -65,7 +56,7 @@ function Event() {
             </label>
             <label>
               event time
-              <input type="time" value={time} onChange={(e) => to24h(e.target.value)} />
+              <input type="time" value={time} onChange={(e) => setTime(e.target.value)} />
             </label>
             <label>
               host email

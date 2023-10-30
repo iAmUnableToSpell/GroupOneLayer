@@ -1,6 +1,7 @@
 import "../styles/Page.css"
 import { useState } from "react"
 import axios from 'axios'
+import toast from 'react-hot-toast'
 
 function Participant() {
 
@@ -28,13 +29,12 @@ function Participant() {
     })
     .then((response) => {
       if (response.status != 200) {
-        alert("Invalid Participant");
+        toast.error("Invalid Participant");
       } else {
-        alert("Participant Created")
+        toast.success("Participant Created")
       }
     }).catch(error => {
-      console.log(error);
-      alert("Error connecting to server: " + error);
+      toast.error("Error connecting to server: " + error);
     })
   }
     return (

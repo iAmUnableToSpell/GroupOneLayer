@@ -1,6 +1,7 @@
 import "../styles/Page.css"
 import axios from "axios"
 import { useEffect, useState } from "react"
+import toast from 'react-hot-toast'
 
 function GetParticipants() {
 
@@ -28,7 +29,7 @@ function GetParticipants() {
     .then((response) => {
       setParticipants(response.data.participants)
     }).catch(error => {
-      console.log(error);
+      toast.error("Error connecting to server: " + error);
     })
   }
 
