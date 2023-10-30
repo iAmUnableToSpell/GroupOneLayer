@@ -31,7 +31,7 @@ public class Main {
                     System.getenv("MONGO_PASS"),
                     System.getenv("MONGO_URL")
             );
-    private final static String DATABASE = "";
+    private final static String DATABASE = "EventDB";
     final static Datastore datastore = Morphia.createDatastore(MongoClients.create(MONGO_URI), DATABASE);
     private static HttpServer server;
     private final static String HOSTNAME = "ec2-54-145-190-43.compute-1.amazonaws.com";
