@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import Navigator from './components/Navigator';
 import Event from "./pages/Event";
+import { Toaster } from 'react-hot-toast';
 
 
 function App() {
@@ -9,6 +10,7 @@ function App() {
 
     return (
         <div className="App" style={{'margin': '0'}}>
+            <Toaster / >
             <Navigator setPage={setPage} / >
             {page}
         </div>
