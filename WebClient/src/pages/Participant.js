@@ -19,7 +19,7 @@ function Participant() {
     }
     axios({
       method: 'POST',
-      url: 'http://ec2-54-145-190-43.compute-1.amazonaws.com:6969/api/participant',
+      url: 'http://ec2-54-145-190-43.compute-1.amazonaws.com:3000/api/participant',
       withCredentials : false,
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
