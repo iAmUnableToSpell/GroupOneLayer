@@ -1,11 +1,14 @@
 package apigateway;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.net.http.HttpRequest.BodyPublishers;
+import java.net.http.HttpResponse.BodyHandlers;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -21,12 +24,12 @@ public class Main {
     private static class RequestHandler implements HttpHandler {
         private URI uri; 
 
-        private RequestHandler(String uri) {
-            this.uri = URI.create(uri);
+        private RequestHandler(String uriString) {
+            this.uri = URI.create(uriString);
         }
 
-        public static RequestHandler routeTo(String uri) {
-            return new RequestHandler(uri);
+        public static RequestHandler routeTo(String uriString) {
+            return new RequestHandler(uriString);
         }
 
         @Override
@@ -34,9 +37,25 @@ public class Main {
             var requestBuilder = HttpRequest.newBuilder(uri);
             exchange.getRequestHeaders().forEach((name, values) -> values.forEach(value -> requestBuilder.header(name, value)));
             requestBuilder.method(exchange.getRequestMethod(), BodyPublishers.ofInputStream(() -> exchange.getRequestBody()));
-            requestBuilder.build();
+            HttpRequest request = requestBuilder.build();
+            HttpResponse<InputStream> response;
 
-            // TODO: Send to appropriate service and handle response
+            try {
+                response = client.send(request, BodyHandlers.ofInputStream());
+            } catch (IOException | InterruptedException e) {
+                System.err.println("Failed to communicate with service at '" + uri + "': " + e.getMessage());
+                exchange.close();
+                return;
+            }
+
+            try {
+                exchange.getResponseHeaders().putAll(response.headers().map());
+                exchange.sendResponseHeaders(200, 0);
+                response.body().transferTo(exchange.getResponseBody());
+            } catch (IOException e) {
+                System.err.println("Failed to respond to client: " + e.getMessage());
+            }
+            exchange.close();
         }
     }
 
