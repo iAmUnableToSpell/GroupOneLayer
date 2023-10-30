@@ -56,11 +56,11 @@ public class Main {
 
     private static void sendJSONResponse(HttpExchange exchange, JSONObject response) {
         try {
-            exchange.sendResponseHeaders(200, 0);
             var output = exchange.getResponseBody();
             exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
             exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type");
             exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "OPTIONS,POST,GET");
+            exchange.sendResponseHeaders(200, 0);
             output.write(response.toJSONString().getBytes());
         } catch (IOException e) {
             // TODO: handle
@@ -78,10 +78,10 @@ public class Main {
             Map<String, String> responseMap = new HashMap<>();
             responseMap.put("error", message);
             JSONObject response = new JSONObject(responseMap);
-            exchange.sendResponseHeaders(statusCode, 0);
             exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
             exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type");
             exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "OPTIONS,POST,GET");
+            exchange.sendResponseHeaders(statusCode, 0);
             var output = exchange.getResponseBody();
             output.write(response.toJSONString().getBytes());
         } catch (IOException e) {
