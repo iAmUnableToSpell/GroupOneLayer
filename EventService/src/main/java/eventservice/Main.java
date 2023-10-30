@@ -34,8 +34,8 @@ public class Main {
     private final static String DATABASE = "";
     final static Datastore datastore = Morphia.createDatastore(MongoClients.create(MONGO_URI), DATABASE);
     private static HttpServer server;
-    private final static String HOSTNAME = "localhost";
-    private final static int PORT = 3000;
+    private final static String HOSTNAME = "ec2-54-145-190-43.compute-1.amazonaws.com";
+    private final static int PORT = 3001;
     private static Optional<JSONObject> readJSONRequest(HttpExchange exchange) {
         InputStreamReader r = new InputStreamReader(exchange.getRequestBody());
         JSONParser parser = new JSONParser();
