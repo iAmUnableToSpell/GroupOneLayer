@@ -37,7 +37,10 @@ public class Main {
         @Override
         public void handle(HttpExchange exchange) {
             var requestBuilder = HttpRequest.newBuilder(uri);
-            exchange.getRequestHeaders().forEach((name, values) -> values.forEach(value -> requestBuilder.header(name, value)));
+            exchange.getRequestHeaders().forEach((name, values) -> values.forEach(value -> {
+                System.out.println(name + " " + value);
+                requestBuilder.header(name, value);
+            }));
             requestBuilder.method(exchange.getRequestMethod(), BodyPublishers.ofInputStream(() -> exchange.getRequestBody()));
             HttpRequest request = requestBuilder.build();
             HttpResponse<InputStream> response;
