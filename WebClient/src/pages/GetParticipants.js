@@ -29,7 +29,7 @@ function GetParticipants() {
     .then((response) => {
       setParticipants(response.data.participants)
     }).catch(error => {
-      toast.error("Error connecting to server: " + error);
+      toast.error("Error connecting to server: "+ error);
     })
   }
 
@@ -60,12 +60,14 @@ function GetParticipants() {
         <h1 className="title">List Participants</h1>
         <div className="input-bar">
           <div className="list-container">
-            <label className='searchbar'>
-              Event UUID&nbsp;&nbsp;&nbsp;&nbsp;
-              <input type='text' value={eventID}  onChange={(e) => {
-                setEventId(e.target.value)}}></input>
-            </label>
-            <button onClick={updateParticipants}>Search</button>
+            <div className="search-container">
+              Event ID:
+              <div className="seachbar-wrapper">
+                <input className='search-input' maxlength='36' type='text' value={eventID}  onChange={(e) => {setEventId(e.target.value)}} />
+                <span class="search-placeholder">XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX</span>
+              </div>
+              <button onClick={updateParticipants}>Search</button>
+            </div>
             {getLegend()}
             {getparticipantsList()}
           </div>

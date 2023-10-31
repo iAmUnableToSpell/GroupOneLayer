@@ -68,6 +68,54 @@ input[type=submit] {
     overflow-y: scroll;
 }
 
+.search-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    justify-content: space-evenly;
+    align-items: top;
+    margin-top: 2vmin;
+}
+
+.searchbar-wrapper {
+    position: relative;
+    background-color: rgb(100,100,200);
+    margin: 2vmin;
+}
+
+.search-input {
+    position: absolute;
+    font-family: monospace;
+    color: var(--text-color);
+    text-transform: full-width;
+    background-color: rgba(0,0,0,0.8);
+    border: none;
+    font-size: 17px;
+    width: 337px;
+    transform: translateX(-50%);
+}
+
+.search-placeholder {
+    font-family: monospace;
+    font-size: 17px;
+    position: absolute;
+    left: 1;
+    top: 1;
+    pointer-events: none;
+    transition: 0.1s ease all;
+    color: rgba(255,255,255,0.2);
+    transform: translateX(-50%);
+}
+
+.search-input:focus {
+    outline: none;
+    border-bottom: 1px solid var(--text-color);
+}
+
+.search-input:focus ~ .placeholder {
+    top: 1px;
+}
+
 .list-entry {
     width: 100%;
     display: flex;
@@ -118,15 +166,14 @@ input[type=submit] {
 
 ::-webkit-scrollbar {
     width: 10px;
-  }
-    ::-webkit-scrollbar-track {
-    background: #f1f1f1; 
-  }
-    ::-webkit-scrollbar-thumb {
-    background: rgb(1,1,1,0.8); 
-      border-radius:0px;
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    
-    background: #121212; 
-  } 
+}
+::-webkit-scrollbar-track {
+    background: rgba(0,0,0,0); 
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(200,200,200,0.8); 
+    border-radius:0px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(150,150,150,0.8); 
+}
