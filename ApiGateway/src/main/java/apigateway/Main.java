@@ -38,20 +38,13 @@ public class Main {
 
         @Override
         public void handle(HttpExchange exchange) {
-	    System.out.println("Handling");
-	    System.out.println("URI:");
-	    System.out.println(uri);
+            System.out.println("Handling");
+            System.out.println("URI:");
+            System.out.println(uri);
             var requestBuilder = HttpRequest.newBuilder(uri);
-	    System.out.println("URI:");
-	    System.out.println(uri);
-	    /*
-            exchange.getRequestHeaders().forEach((name, values) -> values.forEach(value -> {
-                System.out.println(name + " " + value);
-                requestBuilder.header(name, value);
-            }));
-	    System.out.println("Headers forwarded :)");
-	    */
-            requestBuilder.method(exchange.getRequestMethod(), BodyPublishers.ofInputStream(() -> exchange.getRequestBody()));
+            System.out.println("URI:");
+            System.out.println(uri);
+                requestBuilder.method(exchange.getRequestMethod(), BodyPublishers.ofInputStream(() -> exchange.getRequestBody()));
             HttpRequest request = requestBuilder.build();
             HttpResponse<InputStream> response;
 
