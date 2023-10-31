@@ -23,6 +23,7 @@ function Event() {
         desc: desc,
         uuid: uuid == "" ? null : uuid
     }
+
     axios({
       method: 'POST',
       url: 'http://ec2-54-145-190-43.compute-1.amazonaws.com:3000/api/event',

@@ -22,6 +22,7 @@ function GetEvents() {
       withCredentials : false
     })
     .then((response) => {
+      console.log(response.data)
       setEvents(response.data.events)
     }).catch(error => {
       toast.error("Error connecting to server: " + error);
