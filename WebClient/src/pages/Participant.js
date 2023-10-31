@@ -44,19 +44,22 @@ function Participant() {
           <form onSubmit={onSubmit} className="form">
             <label>
               name
-              <input type="text" value={name} onChange={(e) => setName(e.target.value)} />
+              <input type="text" value={name} onChange={(e) => setName(e.target.value)} maxlength='600' required/>
             </label>
             <label>
               event ID
-              <input type="text" value={eventID} onChange={(e) => setEventID(e.target.value)} placeholder='00000000-0000-0000-0000-000000000000'/>
+              <input type="text" value={eventID} onChange={(e) => setEventID(e.target.value)} placeholder='00000000-0000-0000-0000-000000000000'
+                pattern='^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$' required/>
             </label>
             <label>
               email
-              <input type="text" value={email} onChange={(e) => setEmail(e.target.value)} />
+              <input type="text" value={email} onChange={(e) => setEmail(e.target.value)} 
+                 pattern = '[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}$' required/>
             </label>
             <label>
               UUID (optional)
-              <input type="text" value={uuid} onChange={(e) => setUUID(e.target.value)} placeholder='00000000-0000-0000-0000-000000000000'/>
+              <input type="text" value={uuid} onChange={(e) => setUUID(e.target.value)} placeholder='00000000-0000-0000-0000-000000000000'
+                pattern='^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$'/>
             </label>
             <input type="submit" value={"Create"} />
           </form>

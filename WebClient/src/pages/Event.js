@@ -52,27 +52,29 @@ function Event() {
           <form onSubmit={onSubmit} className="form">
             <label>
               event date
-              <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+              <input type="date" value={date} onChange={(e) => setDate(e.target.value)} required/>
             </label>
             <label>
               event time
-              <input type="time" value={time} onChange={(e) => setTime(e.target.value)} />
+              <input type="time" value={time} onChange={(e) => setTime(e.target.value)} required/>
             </label>
             <label>
               host email
-              <input type="text" value={email} onChange={(e) => setEmail(e.target.value)} />
+              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} 
+                pattern = '[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}$' required/>
             </label>
             <label>
               event title
-              <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} />
+              <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} maxlength='255' required/>
             </label>
             <label>
               event description
-              <input type="text" value={desc} onChange={(e) => setDesc(e.target.value)} />
+              <input type="text" value={desc} onChange={(e) => setDesc(e.target.value)} maxlength='600' required/>
             </label>
             <label>
               UUID (optional)
-              <input type="text" value={uuid} onChange={(e) => setUUID(e.target.value)} placeholder='00000000-0000-0000-0000-000000000000'/>
+              <input type="text" value={uuid} onChange={(e) => setUUID(e.target.value)} placeholder='00000000-0000-0000-0000-000000000000'
+                pattern='^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$'/>
             </label>
             <input type="submit" value={"Create"} />
           </form>
